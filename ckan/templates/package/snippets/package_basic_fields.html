@@ -13,11 +13,12 @@
   {{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
 {% endblock %}
 
-{% block package_basic_fields_custom %}{% endblock %}
 
 {% block package_basic_fields_description %}
   {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
 {% endblock %}
+
+{% block package_basic_fields_custom %}{% endblock %}
 
 {% block package_basic_fields_tags %}
   {% set tag_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
@@ -25,7 +26,7 @@
 {% endblock %}
 
 {% block package_basic_fields_license %}
-<div class="control-group">
+<div class="control-group" style="display:none;">
   {% set error = errors.license_id %}
   <label class="control-label" for="field-license">{{ _("License") }}</label>
   <div class="controls">
@@ -63,10 +64,10 @@
   {% if show_organizations_selector and show_visibility_selector %}
     <div data-module="dataset-visibility">
   {% endif %}
-
   {% if show_organizations_selector %}
+  
     {% set existing_org = data.owner_org or data.group_id %}
-    <div class="control-group">
+    <div class="control-group" style="display:none;">
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
       <div class="controls">
         <select id="field-organizations" name="owner_org" data-module="autocomplete">
@@ -102,7 +103,6 @@
     </div>
   {% endif %}
 
-
   {% if data.id and h.check_access('package_delete', {'id': data.id}) and data.state != 'active' %}
     <div class="control-group">
       <label for="field-state" class="control-label">{{ _('State') }}</label>
@@ -116,3 +116,4 @@
   {% endif %}
 
 {% endblock %}
+

@@ -10,6 +10,7 @@ __all__ = [
     'IAuthFunctions',
     'IDomainObjectModification', 'IGroupController',
     'IOrganizationController',
+    'IDomainController',
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
@@ -129,7 +130,9 @@ class IMapper(Interface):
 
     def before_delete(self, mapper, connection, instance):
         """
-        Receive an object instance before that instance is DELETEed.
+        Receive an object instance before that instance is PURGEd.
+        (whereas usually in ckan 'delete' means to change the state property to
+        deleted, so use before_update for that case.)
         """
 
     def after_insert(self, mapper, connection, instance):
@@ -144,7 +147,9 @@ class IMapper(Interface):
 
     def after_delete(self, mapper, connection, instance):
         """
-        Receive an object instance after that instance is DELETEed.
+        Receive an object instance after that instance is PURGEd.
+        (whereas usually in ckan 'delete' means to change the state property to
+        deleted, so use before_update for that case.)
         """
 
 
@@ -479,6 +484,39 @@ class IOrganizationController(Interface):
         '''
         return pkg_dict
 
+class IDomainController(Interface):
+    """
+    Hook into the Domain controller. These will
+    usually be called just before committing or returning the
+    respective object, i.e. all validation, synchronization
+    and authorization setup are complete.
+    """
+
+    def read(self, entity):
+        pass
+
+    def create(self, entity):
+        pass
+
+    def edit(self, entity):
+        pass
+
+    def authz_add_role(self, object_role):
+        pass
+
+    def authz_remove_role(self, object_role):
+        pass
+
+    def delete(self, entity):
+        pass
+
+    def before_view(self, pkg_dict):
+        '''
+             Extensions will recieve this before the domain gets
+             displayed. The dictionary passed will be the one that gets
+             sent to the template.
+        '''
+        return pkg_dict
 
 class IPackageController(Interface):
     """
@@ -1056,13 +1094,11 @@ class IDatasetForm(Interface):
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/read.html'``.
 
-        If the user requests the dataset in a format other than HTML
-        (CKAN supports returning datasets in RDF/XML or N3 format by appending
-        .rdf or .n3 to the dataset read URL, see
-        :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
-        template file with the same path as returned by this function, but a
-        different filename extension, e.g. ``'package/read.rdf'``.  If your
-        extension doesn't have this RDF version of the template file, the user
+        If the user requests the dataset in a format other than HTML, then
+        CKAN will try to render a template file with the same path as returned
+        by this function, but a different filename extension,
+        e.g. ``'package/read.rdf'``.  If your extension (or another one)
+        does not provide this version of the template file, the user
         will get a 404 error.
 
         :rtype: string
@@ -1429,6 +1465,35 @@ class IFacets(Interface):
 
         '''
         return facets_dict
+
+    def domain_facets(self, facets_dict, domain_type, package_type):
+        '''Modify and return the ``facets_dict`` for an domain's page.
+
+        The ``package_type`` is the type of package that these facets apply to.
+        Plugins can provide different search facets for different types of
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+
+        The ``domain_type`` is the type of domain that these facets
+        apply to.  Plugins can provide different search facets for different
+        types of domain. See
+        :py:class:`~ckan.plugins.interfaces.IGroupForm`.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param domain_type: the domain type that these facets apply
+                                  to
+        :type domain_type: string
+
+        :param package_type: the package type that these facets apply to
+        :type package_type: string
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
+        return facets_dict
+
 
 
 class IAuthenticator(Interface):

@@ -781,8 +781,6 @@ def get_action(action_name, data_dict=None):
 
 
 def linked_user(user, maxlength=0, avatar=20):
-    if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
-        return user
     if not isinstance(user, model.User):
         user_name = unicode(user)
         user = model.User.get(user_name)
@@ -1923,7 +1921,8 @@ def featured_group_org(items, get_action, list_action, count):
         context = {'ignore_auth': True,
                    'limits': {'packages': 2},
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id,
+                     'include_datasets': True}
 
         try:
             out = logic.get_action(get_action)(context, data_dict)
@@ -2047,6 +2046,10 @@ def license_options(existing_license_id=None):
          register[license_id].title if license_id in register else license_id)
         for license_id in license_ids]
 
+def gsk_rating(pkgId, rate):
+    print pkgId
+    print rate
+    return "perminder"
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -2167,4 +2170,5 @@ __allowed_functions__ = [
     'check_config_permission',
     'view_resource_url',
     'license_options',
+    'gsk_rating',
 ]
