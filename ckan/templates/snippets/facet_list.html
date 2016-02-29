@@ -47,12 +47,21 @@ within_tertiary
         {% set wrapper_class = 'nav-facet nav-facet-tertiary' %}
       {% endif %}
       {% block facet_list_item %}
-        <section class="{{ wrapper_class or 'module module-narrow module-shallow' }}">
+        <section class="{{ wrapper_class or 'module module-narrow module-shallow' }}"  style="{% if title == 'Licenses' %} display:none; {% endif %}">
           {% block facet_list_heading %}
             <h2 class="module-heading">
               <i class="icon-medium icon-filter"></i>
               {% set title = title or h.get_facet_title(name) %}
-              {{ title }}
+		{%if 'Organizations' in title %}
+			{{ title|replace('Organizations','Phase') }}
+		{% elif 'Topics' in title %}
+			 {{ title|replace('Topics','Phase') }}	
+		{% elif 'Format' in title %}
+			 {{ title|replace('Format','Data System') }}	
+		{% else %}
+			{{ title }}	
+		{% endif %}
+
             </h2>
           {% endblock %}
           {% block facet_list_items %}
@@ -80,11 +89,11 @@ within_tertiary
                     <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
                   {% endif %}
                 {% else %}
-                  <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
+                  <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular ').format(facet_type=title) }}</a>
                 {% endif %}
               </p>
             {% else %}
-              <p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
+            <p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
             {% endif %}
             {% endwith %}
           {% endblock %}

@@ -177,16 +177,13 @@ def package_create(context, data_dict):
     else:
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
-    admins = []
     if user:
         user_obj = model.User.by_name(user.decode('utf8'))
         if user_obj:
-            admins = [user_obj]
             data['creator_user_id'] = user_obj.id
 
     pkg = model_save.package_dict_save(data, context)
 
-    model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package and resources ids
     model.Session.flush()
     data['id'] = pkg.id
@@ -285,7 +282,9 @@ def resource_create(context, data_dict):
     package_id = _get_or_bust(data_dict, 'package_id')
     _get_or_bust(data_dict, 'url')
 
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    pkg_dict = _get_action('package_show')(
+        dict(context, return_type='dict'),
+        {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
 
@@ -725,11 +724,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
 
     group = model_save.group_dict_save(data, context)
 
-    if user:
-        admins = [model.User.by_name(user.decode('utf8'))]
-    else:
-        admins = []
-    model.setup_default_user_roles(group, admins)
     # Needed to let extensions know the group id
     session.flush()
 
@@ -946,11 +940,12 @@ def rating_create(context, data_dict):
     :rtype: dictionary
 
     '''
+    print "rating_create API Start"
     model = context['model']
     user = context.get("user")
 
     package_ref = data_dict.get('package')
-    rating = data_dict.get('rating')
+    rating = int(data_dict.get('rating'))
     opts_err = None
     if not package_ref:
         opts_err = _('You must supply a package id or name '
@@ -979,6 +974,7 @@ def rating_create(context, data_dict):
     package = model.Package.get(package_ref)
     ret_dict = {'rating average': package.get_average_rating(),
                 'rating count': len(package.ratings)}
+     
     return ret_dict
 
 
