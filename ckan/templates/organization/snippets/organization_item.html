@@ -12,9 +12,8 @@ Example:
     </ul>
 #}
 {% set url = h.url_for(organization.type ~ '_read', action='read', id=organization.name) %}
-{%if organization.display_name != 'GSK' %}
 {% block item %}
-<li class="media-item" >
+<li class="media-item">
   {% block item_inner %}
   {% block image %}
     <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="media-image">
@@ -28,10 +27,10 @@ Example:
     {% endif %}
   {% endblock %}
   {% block datasets %}
-    {% if organization.package_count %}
-      <!--<strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong>-->
+    {% if organization.packages %}
+      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.packages).format(num=organization.packages) }}</strong>
     {% else %}
-      <!--<span class="count">{{ _('0 Datasets') }}</span> -->
+      <span class="count">{{ _('0 Datasets') }}</span>
     {% endif %}
   {% endblock %}
   {% block link %}
@@ -42,7 +41,6 @@ Example:
   {% endblock %}
 </li>
 {% endblock %}
-{% endif %}
 {% if position is divisibleby 3 %}
   <li class="clearfix js-hide"></li>
 {% endif %}

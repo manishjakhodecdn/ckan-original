@@ -153,8 +153,9 @@ class GroupController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'with_private': False}
+
         q = c.q = request.params.get('q', '')
-        data_dict = {'all_fields': True, 'q': q, 'type': group_type or 'group', }
+        data_dict = {'all_fields': True, 'q': q, 'type': group_type or 'group'}
         sort_by = c.sort_by_selected = request.params.get('sort')
         if sort_by:
             data_dict['sort'] = sort_by
@@ -446,7 +447,6 @@ class GroupController(base.BaseController):
                    'user': c.user or c.author,
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
-        
         try:
             self._check_access('group_create', context)
         except NotAuthorized:
@@ -533,7 +533,6 @@ class GroupController(base.BaseController):
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
-            
             group = self._action('group_create')(context, data_dict)
 
             # Redirect to the appropriate _read route for the type of group
